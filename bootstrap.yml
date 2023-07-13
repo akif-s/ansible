@@ -1,0 +1,37 @@
+---
+
+- hosts: all
+  become: true
+  pre_tasks:
+
+  - name: install updates (Debian)
+    tags: always
+    apt:
+      upgrade: dist
+      update_cache: yes
+    when: ansible_distribution == "Debian"
+
+
+- hosts: all
+  become: true 
+  tasks:
+  
+  - name: create ali user
+    tags: always
+    user:
+      name: ali
+      groups: root
+      
+  - name: add ssh key for ali
+    tags: always
+    authorized_key:
+      user: ali
+      key: "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQCXnMuJcg0IFhK2WA3PSpY2PlfOkg2I/QiHUD/GAL68jWq4wC55ERFPhiB/FVd4U85z12ABUUrWC/NnAMLSpsiPXaV82z9979ai/mEY5xy+9q9M05ARtrrfqvc3rUsDpHpXn327KWJ6KI8ttiL2Q/c4LRTXChkrCaxiVKZKq+2ccheGDibsYGKvdRlYZFwxccY91SB5ZO5RUdBQ+6Za19nEPs4JtL5uyNNRcuPxxXYmkRk/uGop2J/8YGMGaxcfq94GvO5uR+gERZ3KgQN31pb2tOp/NA1lJNp+oqfyo7cf56vLFCunkUSIy/ZBOq6ss+CA6rRx3NUSaP1/LszljDF9A4RKF6sBXeRQJNtKzgsgiB5PZMkN3JPY2xO6/Vv9Wv3a4pnbj/U+zciIFYQYH+MD38RFUIBqnBR3vMcsfcEWXYR9oZI2yGfCGzUarek3LglocfyTfWaSy4c363t0aY0Cr09hyEyQdZdYOI0hlfJg4H5e2qSYwX+0ynkoax73rB0= ansible"  
+  
+  - name: add sudoers file for ali
+    tags: always
+    copy:
+      src: sudoer_ali
+      dest: /etc/sudoers.d/ali
+      owner: root
+      group: root

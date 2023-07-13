@@ -7,28 +7,21 @@
   - name: install updates (Debian)
     tags: always
     apt:
-      upgrade: dist
       update_cache: yes
+    changed_when: false
     when: ansible_distribution == "Debian"
 
-- hosts: workstations
-  become: true
-  tasks: 
 
-  - name: install unzip
-    package: 
-      name: unzip
-
-  - name: install terraform
-    unarchive:
-      src: https://releases.hashicorp.com/terraform/0.12.28/terraform_0.12.28_linux_amd64.zip
-      dest: /usr/local/bin
-      remote_src: yes
-      mode: 0755
-      owner: root
-      group: root 
-
-
+- hosts: all
+  become: true 
+  tasks:
+   
+  - name: add ssh key for ali
+    tags: always
+    authorized_key:
+      user: ali
+      key: "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQCXnMuJcg0IFhK2WA3PSpY2PlfOkg2I/QiHUD/GAL68jWq4wC55ERFPhiB/FVd4U85z12ABUUrWC/NnAMLSpsiPXaV82z9979ai/mEY5xy+9q9M05ARtrrfqvc3rUsDpHpXn327KWJ6KI8ttiL2Q/c4LRTXChkrCaxiVKZKq+2ccheGDibsYGKvdRlYZFwxccY91SB5ZO5RUdBQ+6Za19nEPs4JtL5uyNNRcuPxxXYmkRk/uGop2J/8YGMGaxcfq94GvO5uR+gERZ3KgQN31pb2tOp/NA1lJNp+oqfyo7cf56vLFCunkUSIy/ZBOq6ss+CA6rRx3NUSaP1/LszljDF9A4RKF6sBXeRQJNtKzgsgiB5PZMkN3JPY2xO6/Vv9Wv3a4pnbj/U+zciIFYQYH+MD38RFUIBqnBR3vMcsfcEWXYR9oZI2yGfCGzUarek3LglocfyTfWaSy4c363t0aY0Cr09hyEyQdZdYOI0hlfJg4H5e2qSYwX+0ynkoax73rB0= ansible"  
+  
 - hosts: web_servers
   become: true
   tasks:
@@ -40,6 +33,14 @@
         - apache2
         - libapache2-mod-php
       state: latest
+    when: ansible_distribution == "Debian"
+
+  - name: start apache
+    tags: apache2,apache,debian
+    service:
+      name: apache2
+      state: started
+      enabled: yes
     when: ansible_distribution == "Debian"
 
   - name: copy html file for site
@@ -56,7 +57,7 @@
   tasks:
 
   - name: install mariadb package (Debian)
-    tags: debian,db,mariadb
+    tags: debian,db,mariadb,skp
     apt:
       name:
         - mariadb-server
@@ -69,7 +70,7 @@
   tasks:
 
   - name: install samba package
-    tags: samba
+    tags: samba,skp
     package:
       name: samba
       state: latest
